@@ -1,9 +1,9 @@
 /**
  * @file test_task_base.cpp
- * @brief Tests hôte de TaskBase : file d'événements + dispatch virtuel.
+ * @brief Host tests for TaskBase: event queue + virtual dispatch.
  *
- * Utilise le shim FreeRTOS (test/shim) pour exécuter la vraie logique de
- * TaskBase (postEvent + processNextEvent) sans ordonnanceur ni matériel.
+ * Uses the FreeRTOS shim (test/shim) to run the real TaskBase logic
+ * (postEvent + processNextEvent) without a scheduler or hardware.
  */
 
 #include "tasks/TaskBase.h"
@@ -26,7 +26,7 @@ static int g_checks = 0;
         }                                                                      \
     } while (0)
 
-/// Tâche concrète de test : compte les handlers et expose processNextEvent.
+/// Concrete test task: counts the handlers and exposes processNextEvent.
 class TestTask : public TaskBase
 {
 public:
@@ -53,20 +53,20 @@ public:
     }
     const char *getName() const override { return "TestTask"; }
 
-    // Expose le dispatch unitaire pour les tests.
+    // Expose the single-event dispatch for the tests.
     using TaskBase::processNextEvent;
 };
 
 static void test_post_then_dispatch_routes_correctly()
 {
     TestTask task;
-    task.start(); // crée la file (shim).
+    task.start(); // creates the queue (shim).
 
     CHECK(task.postEvent(events::kInit) == true);
     CHECK(task.postEvent(events::kStart) == true);
     CHECK(task.postEvent(events::kStop) == true);
 
-    // Chaque dispatch consomme un événement et appelle le bon handler virtuel.
+    // Each dispatch consumes one event and calls the right virtual handler.
     CHECK(task.processNextEvent(0) == true);
     CHECK(task.initCalls == 1);
     CHECK(task.processNextEvent(0) == true);
@@ -74,7 +74,7 @@ static void test_post_then_dispatch_routes_correctly()
     CHECK(task.processNextEvent(0) == true);
     CHECK(task.stopCalls == 1);
 
-    // File vide : plus rien à dispatcher.
+    // Empty queue: nothing left to dispatch.
     CHECK(task.processNextEvent(0) == false);
 }
 
@@ -83,7 +83,7 @@ static void test_fifo_order_preserved()
     TestTask task;
     task.start();
 
-    // Deux INIT puis un STOP : l'ordre FIFO doit être respecté.
+    // Two INIT then one STOP: the FIFO order must be preserved.
     task.postEvent(events::kInit);
     task.postEvent(events::kInit);
     task.postEvent(events::kStop);
@@ -95,7 +95,7 @@ static void test_fifo_order_preserved()
 
 static void test_post_without_start_fails()
 {
-    TestTask task; // pas de start() → file non créée.
+    TestTask task; // no start() -> queue not created.
     CHECK(task.postEvent(events::kInit) == false);
     CHECK(task.processNextEvent(0) == false);
 }

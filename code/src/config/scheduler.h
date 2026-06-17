@@ -2,11 +2,11 @@
 
 /**
  * @file scheduler.h
- * @brief LLR_SCH_001 — Singleton de gestion des tâches FreeRTOS.
+ * @brief LLR_SCH_001 — Singleton managing the FreeRTOS tasks.
  *
- * NOTE : TaskCommunication (LLR_TSK_002) et TaskHeartbeat (LLR_TSK_004) sont
- * instanciées. TaskSensor (LLR_TSK_003) est définie mais NON instanciée : elle
- * requiert une implémentation concrète d'ISensor, qui n'a pas encore de LLR.
+ * NOTE: TaskCommunication (LLR_TSK_002) and TaskHeartbeat (LLR_TSK_004) are
+ * instantiated. TaskSensor (LLR_TSK_003) is defined but NOT instantiated: it
+ * requires a concrete ISensor implementation, which does not yet have an LLR.
  */
 
 #include "drivers/UartDriver.h"
@@ -16,13 +16,13 @@
 class Scheduler
 {
 public:
-    /// @return l'instance unique du scheduler.
+    /// @return the unique scheduler instance.
     static Scheduler &getInstance();
 
-    /// Instancie/démarre les tâches et leur envoie l'événement INIT.
+    /// Instantiates/starts the tasks and sends them the INIT event.
     void init();
 
-    /// Démarre l'ordonnanceur (ne retourne pas en fonctionnement normal).
+    /// Starts the scheduler (does not return during normal operation).
     void start();
 
     Scheduler(const Scheduler &) = delete;

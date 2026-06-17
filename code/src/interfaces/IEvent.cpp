@@ -1,6 +1,6 @@
 /**
  * @file IEvent.cpp
- * @brief Définition des instances singleton d'événements (aucune allocation).
+ * @brief Definition of the singleton event instances (no allocation).
  */
 
 #include "IEvent.h"

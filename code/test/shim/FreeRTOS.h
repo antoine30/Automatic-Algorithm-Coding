@@ -2,10 +2,10 @@
 
 /**
  * @file FreeRTOS.h (SHIM)
- * @brief Stub FreeRTOS minimal — UNIQUEMENT pour les tests hôte.
+ * @brief Minimal FreeRTOS stub — HOST tests ONLY.
  *
- * NE FAIT PAS PARTIE DU FIRMWARE. Fournit juste les types et macros utilisés
- * par TaskBase afin de pouvoir tester la boucle de dispatch sur PC.
+ * NOT PART OF THE FIRMWARE. Only provides the types and macros used by
+ * TaskBase so the dispatch loop can be tested on a PC.
  */
 
 #include <cstddef>

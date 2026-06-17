@@ -1,6 +1,6 @@
 /**
  * @file test_task_sensor.cpp
- * @brief Tests hôte de TaskSensor avec un mock ISensor (shim FreeRTOS).
+ * @brief Host tests for TaskSensor with a mock ISensor (FreeRTOS shim).
  */
 
 #include "tasks/TaskSensor.h"
@@ -23,7 +23,7 @@ static int g_checks = 0;
         }                                                                      \
     } while (0)
 
-/// Capteur factice pilotable pour les tests.
+/// Controllable dummy sensor for the tests.
 class MockSensor : public ISensor
 {
 public:
@@ -94,14 +94,14 @@ static void test_read_timeout_does_not_stop()
     TaskSensor task(sensor);
     task.onInit();
     sensor.readStatus = DriverStatus::TIMEOUT;
-    CHECK(task.onStart() == TaskStatus::OK); // timeout toléré
-    CHECK(task.sampleCount() == 0u);         // pas d'échantillon compté
+    CHECK(task.onStart() == TaskStatus::OK); // timeout tolerated
+    CHECK(task.sampleCount() == 0u);         // no sample counted
 }
 
 static void test_post_event_uses_queue()
 {
-    // Le chemin file + dispatch virtuel est couvert par test_task_base.cpp ;
-    // ici on vérifie juste que TaskSensor accepte de poster ses événements.
+    // The queue + virtual dispatch path is covered by test_task_base.cpp;
+    // here we just verify that TaskSensor accepts posting its events.
     MockSensor sensor;
     TaskSensor task(sensor);
     task.start();

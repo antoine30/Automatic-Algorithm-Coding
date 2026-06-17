@@ -1,6 +1,6 @@
 /**
  * @file TaskHeartbeat.cpp
- * @brief LLR_TSK_004 — Implémentation de la tâche heartbeat.
+ * @brief LLR_TSK_004 — Heartbeat task implementation.
  */
 
 #include "tasks/TaskHeartbeat.h"
@@ -27,7 +27,7 @@ const char *TaskHeartbeat::getName() const
 
 TaskStatus TaskHeartbeat::onInit()
 {
-    // Configure la broche LED en sortie push-pull et l'éteint.
+    // Configure the LED pin as push-pull output and turn it off.
     GPIO_InitTypeDef init = {};
     init.Pin = io::gpio::kLedStatus.pin;
     init.Mode = GPIO_MODE_OUTPUT_PP;
@@ -44,7 +44,7 @@ TaskStatus TaskHeartbeat::onInit()
 
 TaskStatus TaskHeartbeat::onStart()
 {
-    // Inverse l'état de la LED à chaque tick de période.
+    // Toggle the LED state on every period tick.
     HAL_GPIO_TogglePin(io::gpio::kLedStatus.port, io::gpio::kLedStatus.pin);
     m_ledOn = !m_ledOn;
     ++m_toggleCount;

@@ -2,10 +2,10 @@
 
 /**
  * @file I2cDriver.h
- * @brief LLR_DRV_003 — Driver I2C (implémente IDriver).
+ * @brief LLR_DRV_003 — I2C driver (implements IDriver).
  *
- * Lectures/écritures maître vers des esclaves adressés.
- * Thread-safe via mutex FreeRTOS. Récupération de bus en cas d'erreurs répétées.
+ * Master reads/writes to addressed slaves.
+ * Thread-safe via a FreeRTOS mutex. Bus recovery on repeated errors.
  */
 
 #include <cstddef>
@@ -28,21 +28,21 @@ public:
     bool isReady() const override;
     const char *getName() const override;
 
-    /// Écriture vers @p devAddr (adresse 8 bits déjà décalée).
+    /// Write to @p devAddr (8-bit address, already shifted).
     DriverStatus write(uint8_t devAddr, const uint8_t *buf, size_t len,
                        uint32_t timeout_ms);
 
-    /// Lecture depuis @p devAddr (adresse 8 bits déjà décalée).
+    /// Read from @p devAddr (8-bit address, already shifted).
     DriverStatus read(uint8_t devAddr, uint8_t *buf, size_t len,
                       uint32_t timeout_ms);
 
 private:
     I2C_HandleTypeDef *m_hi2c;
     bool m_initialized;
-    uint8_t m_consecutiveErrors;         ///< Compteur pour la récupération de bus.
+    uint8_t m_consecutiveErrors;         ///< Counter for bus recovery.
     SemaphoreHandle_t m_mutex;
     StaticSemaphore_t m_mutexBuffer;
 
-    /// Convertit un statut HAL en DriverStatus et gère le compteur d'erreurs.
+    /// Converts a HAL status to DriverStatus and manages the error counter.
     DriverStatus mapStatus(HAL_StatusTypeDef hal);
 };

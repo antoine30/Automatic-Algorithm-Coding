@@ -2,10 +2,10 @@
 
 /**
  * @file task.h (SHIM)
- * @brief Stub FreeRTOS task — tests hôte uniquement.
+ * @brief FreeRTOS task stub — host tests only.
  *
- * xTaskCreate ne lance PAS la fonction de tâche : les tests pilotent le dispatch
- * manuellement via TaskBase::processNextEvent().
+ * xTaskCreate does NOT launch the task function: the tests drive the dispatch
+ * manually via TaskBase::processNextEvent().
  */
 
 #include "FreeRTOS.h"
@@ -23,7 +23,7 @@ inline BaseType_t xTaskCreate(TaskFunction_t fn, const char *name, uint16_t stac
     (void)prio;
     if (handle != nullptr)
     {
-        *handle = reinterpret_cast<TaskHandle_t>(1); // handle non nul.
+        *handle = reinterpret_cast<TaskHandle_t>(1); // non-null handle.
     }
     return pdPASS;
 }

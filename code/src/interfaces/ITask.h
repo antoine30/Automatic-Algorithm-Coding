@@ -2,18 +2,17 @@
 
 /**
  * @file ITask.h
- * @brief LLR_ITF_001 — Interface abstraite des tâches FreeRTOS (event-driven).
+ * @brief LLR_ITF_001 — Abstract interface for FreeRTOS tasks (event-driven).
  *
- * Une tâche est pilotée par événements : elle reçoit des objets IEvent
- * (cf. LLR_ITF_004) et chaque événement exécute le code associé en appelant
- * l'un des handlers virtuels ci-dessous. Le type d'événement n'est jamais
- * résolu par un switch/case : c'est IEvent::execute() qui sélectionne le
- * handler (double-dispatch).
+ * A task is event-driven: it receives IEvent objects (see LLR_ITF_004) and
+ * each event runs the associated code by calling one of the virtual handlers
+ * below. The event type is never resolved by a switch/case: it is
+ * IEvent::execute() that selects the handler (double-dispatch).
  */
 
 #include <cstdint>
 
-/// Code de retour des traitements de tâche.
+/// Return code for task processing.
 enum class TaskStatus : uint8_t
 {
     OK = 0,
@@ -24,25 +23,25 @@ enum class TaskStatus : uint8_t
 };
 
 /**
- * @brief Interface 100% abstraite que toute tâche FreeRTOS doit implémenter.
+ * @brief Fully abstract interface that every FreeRTOS task must implement.
  *
- * Les handlers sont appelés via IEvent::execute() (double-dispatch). Aucune
- * donnée membre, aucune implémentation : interface pure.
+ * Handlers are called via IEvent::execute() (double-dispatch). No member
+ * data, no implementation: pure interface.
  */
 class ITask
 {
 public:
     virtual ~ITask() = default;
 
-    /// Exécuté sur l'événement INIT.
+    /// Executed on the INIT event.
     virtual TaskStatus onInit() = 0;
 
-    /// Exécuté sur l'événement START (démarre / fait tourner le process).
+    /// Executed on the START event (starts / runs the process).
     virtual TaskStatus onStart() = 0;
 
-    /// Exécuté sur l'événement STOP.
+    /// Executed on the STOP event.
     virtual TaskStatus onStop() = 0;
 
-    /// @return le nom de la tâche (pour les logs).
+    /// @return the task name (for logging).
     virtual const char *getName() const = 0;
 };

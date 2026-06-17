@@ -2,7 +2,7 @@
 
 /**
  * @file ISensor.h
- * @brief LLR_ITF_003 — Interface abstraite des capteurs (étend IDriver).
+ * @brief LLR_ITF_003 — Abstract interface for sensors (extends IDriver).
  */
 
 #include <cstddef>
@@ -11,19 +11,19 @@
 #include "IDriver.h"
 
 /**
- * @brief Interface 100% abstraite pour les capteurs : lecture + calibration.
+ * @brief Fully abstract interface for sensors: reading + calibration.
  */
 class ISensor : public IDriver
 {
 public:
     virtual ~ISensor() = default;
 
-    /// Lit les données du capteur dans @p buf (taille @p len).
+    /// Reads the sensor data into @p buf (size @p len).
     virtual DriverStatus read(uint8_t *buf, size_t len) = 0;
 
-    /// Lance la procédure de calibration.
+    /// Starts the calibration procedure.
     virtual DriverStatus calibrate() = 0;
 
-    /// @return true si le capteur est calibré.
+    /// @return true if the sensor is calibrated.
     virtual bool isCalibrated() const = 0;
 };

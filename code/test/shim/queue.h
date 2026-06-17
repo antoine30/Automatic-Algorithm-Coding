@@ -2,10 +2,10 @@
 
 /**
  * @file queue.h (SHIM)
- * @brief File FreeRTOS simulée (FIFO) — tests hôte uniquement.
+ * @brief Simulated FreeRTOS queue (FIFO) — host tests only.
  *
- * Implémentation simple à base de std::deque. xQueueReceive est NON bloquant
- * (retourne pdFALSE si vide) pour ne pas figer les tests.
+ * Simple std::deque-based implementation. xQueueReceive is NON blocking
+ * (returns pdFALSE if empty) so the tests don't freeze.
  */
 
 #include "FreeRTOS.h"
@@ -59,7 +59,7 @@ inline BaseType_t xQueueReceive(QueueHandle_t q, void *dst, TickType_t)
 {
     if (q == nullptr || q->items.empty())
     {
-        return pdFALSE; // Non bloquant côté shim.
+        return pdFALSE; // Non blocking on the shim side.
     }
     std::memcpy(dst, q->items.front().data(), q->itemSize);
     q->items.pop_front();

@@ -1,6 +1,6 @@
 /**
  * @file UartDriver.cpp
- * @brief LLR_DRV_001 — Implémentation du driver UART.
+ * @brief LLR_DRV_001 — UART driver implementation.
  */
 
 #include "drivers/UartDriver.h"
@@ -19,7 +19,7 @@ DriverStatus UartDriver::init()
         return DriverStatus::ERROR;
     }
 
-    // Création statique du mutex (aucune allocation dynamique).
+    // Static creation of the mutex (no dynamic allocation).
     if (m_mutex == nullptr)
     {
         m_mutex = xSemaphoreCreateMutexStatic(&m_mutexBuffer);
@@ -29,7 +29,7 @@ DriverStatus UartDriver::init()
         }
     }
 
-    // Armement de la réception par interruption sur le buffer statique.
+    // Arm interrupt-driven reception on the static buffer.
     if (HAL_UART_Receive_IT(m_huart, s_rxBuffer, sizeof(s_rxBuffer)) != HAL_OK)
     {
         return DriverStatus::ERROR;
@@ -71,7 +71,7 @@ DriverStatus UartDriver::read(uint8_t *buf, size_t len, uint32_t timeout_ms)
         return DriverStatus::ERROR;
     }
 
-    // Section critique protégée par mutex.
+    // Critical section protected by the mutex.
     if (xSemaphoreTake(m_mutex, pdMS_TO_TICKS(timeout_ms)) != pdTRUE)
     {
         return DriverStatus::TIMEOUT;
@@ -107,7 +107,7 @@ DriverStatus UartDriver::write(const uint8_t *buf, size_t len)
         return DriverStatus::TIMEOUT;
     }
 
-    // Émission bloquante (timeout HAL fixé à 1000 ms).
+    // Blocking transmission (HAL timeout set to 1000 ms).
     HAL_StatusTypeDef hal = HAL_UART_Transmit(
         m_huart, const_cast<uint8_t *>(buf), static_cast<uint16_t>(len), 1000);
     xSemaphoreGive(m_mutex);

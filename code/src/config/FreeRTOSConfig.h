@@ -2,7 +2,7 @@
 
 /**
  * @file FreeRTOSConfig.h
- * @brief LLR_SCH_001 — Configuration FreeRTOS (STM32F4).
+ * @brief LLR_SCH_001 — FreeRTOS configuration (STM32F4).
  */
 
 #define configUSE_PREEMPTION                    1
@@ -22,20 +22,20 @@
 #define configUSE_IDLE_HOOK                     0
 #define configUSE_TICK_HOOK                     0
 
-/* Priorités d'interruption (Cortex-M4 / NVIC). */
+/* Interrupt priorities (Cortex-M4 / NVIC). */
 #define configPRIO_BITS                         4
 #define configLIBRARY_LOWEST_INTERRUPT_PRIORITY 15
 #define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY 5
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY \
     (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS))
 
-/* API FreeRTOS optionnelles utilisées. */
+/* Optional FreeRTOS APIs used. */
 #define INCLUDE_vTaskDelete                     1
 #define INCLUDE_vTaskDelayUntil                 1
 #define INCLUDE_vTaskDelay                      1
 #define INCLUDE_uxTaskGetStackHighWaterMark     1
 
-/* Mapping des handlers du noyau vers les vecteurs CMSIS. */
+/* Mapping of kernel handlers to CMSIS vectors. */
 #define vPortSVCHandler     SVC_Handler
 #define xPortPendSVHandler  PendSV_Handler
 #define xPortSysTickHandler SysTick_Handler

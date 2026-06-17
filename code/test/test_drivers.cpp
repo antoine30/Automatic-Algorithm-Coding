@@ -1,13 +1,13 @@
 /**
  * @file test_drivers.cpp
- * @brief Tests hôte des drivers UART/SPI/I2C via le shim HAL (test/shim).
+ * @brief Host tests for the UART/SPI/I2C drivers via the HAL shim (test/shim).
  *
- * Vérifie : mapping des statuts HAL → DriverStatus, garde anti-usage avant init,
- * désactivation systématique du CS en SPI (RAII), et recovery de bus I2C après
- * erreurs consécutives.
+ * Verifies: HAL status mapping -> DriverStatus, guard against use before init,
+ * systematic CS deassertion on SPI (RAII), and I2C bus recovery after
+ * consecutive errors.
  */
 
-#include "stm32f4xx_hal.h" // shim + mock g_hal
+#include "stm32f4xx_hal.h" // shim + g_hal mock
 
 #include "drivers/I2cDriver.h"
 #include "drivers/SpiDriver.h"
@@ -36,11 +36,11 @@ static void test_uart()
     UART_HandleTypeDef huart{};
     UartDriver uart(&huart);
 
-    // init nul → ERROR.
+    // null init -> ERROR.
     UartDriver bad(nullptr);
     CHECK(bad.init() == DriverStatus::ERROR);
 
-    // Lecture avant init → NOT_INITIALIZED.
+    // Read before init -> NOT_INITIALIZED.
     uint8_t buf[8] = {0};
     CHECK(uart.read(buf, sizeof(buf), 100) == DriverStatus::NOT_INITIALIZED);
 
@@ -49,25 +49,25 @@ static void test_uart()
     CHECK(uart.isReady());
     CHECK(g_hal.uartReceiveItCalls == 1);
 
-    // Lecture OK : buffer rempli par le mock.
+    // Read OK: buffer filled by the mock.
     g_hal.rxFillByte = 0x5A;
     CHECK(uart.read(buf, sizeof(buf), 100) == DriverStatus::OK);
     CHECK(buf[0] == 0x5A);
 
-    // Timeout / erreur injectés.
+    // Injected timeout / error.
     g_hal.uartReceiveStatus = HAL_TIMEOUT;
     CHECK(uart.read(buf, sizeof(buf), 100) == DriverStatus::TIMEOUT);
     g_hal.uartReceiveStatus = HAL_ERROR;
     CHECK(uart.read(buf, sizeof(buf), 100) == DriverStatus::ERROR);
 
-    // Écriture OK puis erreur.
+    // Write OK then error.
     const uint8_t msg[3] = {1, 2, 3};
     g_hal.uartTransmitStatus = HAL_OK;
     CHECK(uart.write(msg, sizeof(msg)) == DriverStatus::OK);
     g_hal.uartTransmitStatus = HAL_ERROR;
     CHECK(uart.write(msg, sizeof(msg)) == DriverStatus::ERROR);
 
-    // reset → abort + ré-init.
+    // reset -> abort + re-init.
     CHECK(uart.reset() == DriverStatus::OK);
     CHECK(g_hal.uartAbortCalls == 1);
 }
@@ -83,24 +83,24 @@ static void test_spi()
     uint8_t tx[4] = {1, 2, 3, 4};
     uint8_t rx[4] = {0};
 
-    // Transfert avant init → NOT_INITIALIZED.
+    // Transfer before init -> NOT_INITIALIZED.
     CHECK(spi.transfer(tx, rx, 4, 100) == DriverStatus::NOT_INITIALIZED);
 
-    // init : CS positionné au repos (haut).
+    // init: CS set to idle (high).
     CHECK(spi.init() == DriverStatus::OK);
     CHECK(g_hal.lastGpioState == GPIO_PIN_SET);
 
-    // Transfert OK : CS de nouveau désactivé après coup (RAII).
+    // Transfer OK: CS deasserted again afterwards (RAII).
     CHECK(spi.transfer(tx, rx, 4, 100) == DriverStatus::OK);
     CHECK(g_hal.spiTransferCalls == 1);
-    CHECK(g_hal.lastGpioState == GPIO_PIN_SET); // CS désactivé.
+    CHECK(g_hal.lastGpioState == GPIO_PIN_SET); // CS deasserted.
 
-    // Transfert en erreur : CS DOIT quand même être désactivé.
+    // Transfer in error: CS MUST still be deasserted.
     g_hal.spiTransferStatus = HAL_ERROR;
     CHECK(spi.transfer(tx, rx, 4, 100) == DriverStatus::ERROR);
-    CHECK(g_hal.lastGpioState == GPIO_PIN_SET); // garanti par CsGuard.
+    CHECK(g_hal.lastGpioState == GPIO_PIN_SET); // guaranteed by CsGuard.
 
-    // Timeout injecté.
+    // Injected timeout.
     g_hal.spiTransferStatus = HAL_TIMEOUT;
     CHECK(spi.transfer(tx, rx, 4, 100) == DriverStatus::TIMEOUT);
 }
@@ -114,13 +114,13 @@ static void test_i2c()
 
     uint8_t buf[4] = {0};
 
-    // Avant init.
+    // Before init.
     CHECK(i2c.write(0x50, buf, sizeof(buf), 100) == DriverStatus::NOT_INITIALIZED);
 
     CHECK(i2c.init() == DriverStatus::OK);
     CHECK(i2c.isReady());
 
-    // Écriture / lecture OK.
+    // Write / read OK.
     CHECK(i2c.write(0x50, buf, sizeof(buf), 100) == DriverStatus::OK);
     CHECK(i2c.read(0x50, buf, sizeof(buf), 100) == DriverStatus::OK);
 
@@ -128,13 +128,13 @@ static void test_i2c()
     g_hal.i2cTxStatus = HAL_TIMEOUT;
     CHECK(i2c.write(0x50, buf, sizeof(buf), 100) == DriverStatus::TIMEOUT);
 
-    // Recovery de bus : 3 erreurs consécutives → reset (DeInit + Init).
+    // Bus recovery: 3 consecutive errors -> reset (DeInit + Init).
     g_hal.i2cTxStatus = HAL_ERROR;
     CHECK(i2c.write(0x50, buf, sizeof(buf), 100) == DriverStatus::ERROR);
     CHECK(i2c.write(0x50, buf, sizeof(buf), 100) == DriverStatus::ERROR);
-    CHECK(g_hal.i2cDeInitCalls == 0); // pas encore.
+    CHECK(g_hal.i2cDeInitCalls == 0); // not yet.
     CHECK(i2c.write(0x50, buf, sizeof(buf), 100) == DriverStatus::ERROR);
-    CHECK(g_hal.i2cDeInitCalls == 1); // recovery déclenchée au 3e échec.
+    CHECK(g_hal.i2cDeInitCalls == 1); // recovery triggered on the 3rd failure.
     CHECK(g_hal.i2cInitCalls == 1);
 }
 

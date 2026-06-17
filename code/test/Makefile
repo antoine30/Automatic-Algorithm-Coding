@@ -1,13 +1,13 @@
-# Tests unitaires hôte (HAL/FreeRTOS-free pour le cœur, + shim pour TaskBase).
+# Host unit tests (HAL/FreeRTOS-free for the core, + shim for TaskBase).
 #
-#  run_tests          : dispatch d'événements (interfaces + IEvent), pur C++17.
-#  run_tests_taskbase : boucle d'événements de TaskBase via le shim FreeRTOS.
+#  run_tests          : event dispatch (interfaces + IEvent), pure C++17.
+#  run_tests_taskbase : TaskBase event loop via the FreeRTOS shim.
 #
-# Les drivers/config/tâches matérielles ciblent STM32F4 + HAL et se compilent
-# avec la toolchain embarquée (non couverts ici).
+# The hardware drivers/config/tasks target STM32F4 + HAL and are built with
+# the embedded toolchain (not covered here).
 #
-# Usage : make        -> compile et lance les deux suites
-#         make clean  -> supprime les artefacts
+# Usage : make        -> build and run both suites
+#         make clean  -> remove the artifacts
 
 CXX      ?= g++
 CXXFLAGS ?= -std=c++17 -Wall -Wextra
@@ -31,7 +31,7 @@ all: test
 $(CORE_BIN): $(CORE_SRC)
 	$(CXX) $(CXXFLAGS) -I ../src $(CORE_SRC) -o $(CORE_BIN)
 
-# Le shim doit primer sur les vrais en-têtes : -I shim avant -I ../src.
+# The shim must take precedence over the real headers: -I shim before -I ../src.
 $(TB_BIN): $(TB_SRC)
 	$(CXX) $(CXXFLAGS) -I shim -I ../src $(TB_SRC) -o $(TB_BIN)
 

@@ -2,10 +2,10 @@
 
 /**
  * @file SpiDriver.h
- * @brief LLR_DRV_002 — Driver SPI (implémente IDriver).
+ * @brief LLR_DRV_002 — SPI driver (implements IDriver).
  *
- * Transferts full-duplex avec gestion manuelle du chip-select.
- * Thread-safe via mutex FreeRTOS. Le CS est toujours désactivé, même en erreur.
+ * Full-duplex transfers with manual chip-select management.
+ * Thread-safe via a FreeRTOS mutex. The CS is always deasserted, even on error.
  */
 
 #include <cstddef>
@@ -28,22 +28,22 @@ public:
     bool isReady() const override;
     const char *getName() const override;
 
-    /// Transfert full-duplex (timeout en ms). CS géré automatiquement.
+    /// Full-duplex transfer (timeout in ms). CS handled automatically.
     DriverStatus transfer(const uint8_t *txBuf, uint8_t *rxBuf, size_t len,
                           uint32_t timeout_ms);
 
 private:
-    /// Garde RAII : assert le CS à la construction, le désactive à la destruction.
+    /// RAII guard: asserts the CS on construction, deasserts it on destruction.
     class CsGuard
     {
     public:
         CsGuard(GPIO_TypeDef *port, uint16_t pin) : m_port(port), m_pin(pin)
         {
-            HAL_GPIO_WritePin(m_port, m_pin, GPIO_PIN_RESET); // CS actif (bas).
+            HAL_GPIO_WritePin(m_port, m_pin, GPIO_PIN_RESET); // CS active (low).
         }
         ~CsGuard()
         {
-            HAL_GPIO_WritePin(m_port, m_pin, GPIO_PIN_SET); // CS inactif (haut).
+            HAL_GPIO_WritePin(m_port, m_pin, GPIO_PIN_SET); // CS inactive (high).
         }
         CsGuard(const CsGuard &) = delete;
         CsGuard &operator=(const CsGuard &) = delete;

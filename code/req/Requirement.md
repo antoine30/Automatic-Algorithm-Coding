@@ -1,26 +1,24 @@
-# Mon Projet
+# My Project
 
 ## Description
-Tache ecrite en C++ pour l os FREE RTOS 
+Task written in C++ for the FreeRTOS OS
 
-## Structure cible 
+## Target structure
 ~/testClaude/code/req
 ~/testClaude/code/src
 ~/testClaude/code/test
 
-## Fonctionnalités
-- Créer une tache free rtos qui recoit trois messages START STOP INIT 
-- La tache s initialise sur INIT
-- La tache run le process sur le message START
-- La tache stop le process sur le message STOP
-- Il faut utiliser des fonctions virtuelles qui sont appelees sur le type d event (INIT, START et STOP). Il ne faut pas utiliser de switch case. Il faut faire du C++ au moins 11
-
+## Features
+- Create a FreeRTOS task that receives three messages START STOP INIT
+- The task initializes on INIT
+- The task runs the process on the START message
+- The task stops the process on the STOP message
+- Virtual functions must be used, called based on the event type (INIT, START and STOP). No switch/case must be used. Must use at least C++11
 
 ## Tech Stack
-- langage C++
+- C++ language
 
-
-## Contraintes
-- Code commenté
-- Gestion des erreurs
-- Tests unitaires inclus
+## Constraints
+- Commented code
+- Error handling
+- Unit tests included

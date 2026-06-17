@@ -1,6 +1,6 @@
 /**
  * @file scheduler.cpp
- * @brief LLR_SCH_001 — Implémentation du scheduler.
+ * @brief LLR_SCH_001 — Scheduler implementation.
  */
 
 #include "config/scheduler.h"
@@ -10,24 +10,24 @@
 
 #include "interfaces/IEvent.h"
 
-// --- Ressources matérielles et tâches (stockage statique : aucun heap) -----
-// huart1 est normalement fourni par le BSP/CubeMX ; déclaré ici pour le lien.
+// --- Hardware resources and tasks (static storage: no heap) ----------------
+// huart1 is normally provided by the BSP/CubeMX; declared here for linking.
 UART_HandleTypeDef huart1;
 
 static UartDriver g_uartDriver(&huart1);
 
-// Globale référencée par les ISR (cf. stm32f4xx_it.cpp).
+// Global referenced by the ISRs (see stm32f4xx_it.cpp).
 TaskCommunication g_taskCommunication(g_uartDriver);
 TaskHeartbeat g_taskHeartbeat;
 
-// Vérification statique : la somme des piles tient dans le heap FreeRTOS.
-// TaskCommunication 512 + TaskHeartbeat 128 = 640 mots.
+// Static check: the sum of the stacks fits within the FreeRTOS heap.
+// TaskCommunication 512 + TaskHeartbeat 128 = 640 words.
 static_assert((512 + 128) * sizeof(StackType_t) < configTOTAL_HEAP_SIZE,
               "Task stacks exceed configTOTAL_HEAP_SIZE");
 
 Scheduler &Scheduler::getInstance()
 {
-    static Scheduler instance; // Singleton (initialisation à la première demande).
+    static Scheduler instance; // Singleton (initialized on first request).
     return instance;
 }
 
@@ -35,7 +35,7 @@ Scheduler::Scheduler() = default;
 
 void Scheduler::init()
 {
-    // Crée la file + la tâche, puis envoie INIT et START à chaque tâche.
+    // Create the queue + task, then send INIT and START to each task.
     g_taskCommunication.start();
     g_taskCommunication.postEvent(events::kInit, portMAX_DELAY);
     g_taskCommunication.postEvent(events::kStart, portMAX_DELAY);
@@ -47,5 +47,5 @@ void Scheduler::init()
 
 void Scheduler::start()
 {
-    vTaskStartScheduler(); // Ne retourne pas en fonctionnement normal.
+    vTaskStartScheduler(); // Does not return during normal operation.
 }

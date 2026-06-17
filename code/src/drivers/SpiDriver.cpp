@@ -1,6 +1,6 @@
 /**
  * @file SpiDriver.cpp
- * @brief LLR_DRV_002 — Implémentation du driver SPI.
+ * @brief LLR_DRV_002 — SPI driver implementation.
  */
 
 #include "drivers/SpiDriver.h"
@@ -25,7 +25,7 @@ DriverStatus SpiDriver::init()
             return DriverStatus::ERROR;
         }
     }
-    // CS désactivé au repos.
+    // CS deasserted when idle.
     HAL_GPIO_WritePin(m_csPort, m_csPin, GPIO_PIN_SET);
     m_initialized = true;
     return DriverStatus::OK;
@@ -71,7 +71,7 @@ DriverStatus SpiDriver::transfer(const uint8_t *txBuf, uint8_t *rxBuf, size_t le
 
     DriverStatus result = DriverStatus::OK;
     {
-        // CsGuard garantit la désactivation du CS même en cas d'erreur (RAII).
+        // CsGuard guarantees the CS is deasserted even on error (RAII).
         CsGuard cs(m_csPort, m_csPin);
         HAL_StatusTypeDef hal = HAL_SPI_TransmitReceive(
             m_hspi, const_cast<uint8_t *>(txBuf), rxBuf,
@@ -85,7 +85,7 @@ DriverStatus SpiDriver::transfer(const uint8_t *txBuf, uint8_t *rxBuf, size_t le
         {
             result = DriverStatus::ERROR;
         }
-    } // CS désactivé ici.
+    } // CS deasserted here.
 
     xSemaphoreGive(m_mutex);
     return result;

@@ -2,23 +2,23 @@
 
 /**
  * @file stm32f4xx_hal.h (SHIM)
- * @brief Stub du HAL STM32F4 — tests hôte uniquement. NE FAIT PAS PARTIE DU FW.
+ * @brief STM32F4 HAL stub — host tests only. NOT PART OF THE FW.
  *
- * Fournit les types/fonctions HAL utilisés par les drivers, plus un MOCK
- * contrôlable (g_hal) permettant aux tests d'injecter des statuts de retour et
- * d'observer les appels (compteurs, données, état des broches GPIO).
+ * Provides the HAL types/functions used by the drivers, plus a controllable
+ * MOCK (g_hal) that lets tests inject return statuses and observe the calls
+ * (counters, data, GPIO pin state).
  *
- * Utilisation dans un test :
+ * Usage in a test:
  *   g_hal.reset();
- *   g_hal.uartReceiveStatus = HAL_TIMEOUT;   // injecte un timeout
- *   ... appeler le driver ...
+ *   g_hal.uartReceiveStatus = HAL_TIMEOUT;   // inject a timeout
+ *   ... call the driver ...
  *   CHECK(g_hal.uartReceiveCalls == 1);      // observe
  */
 
 #include <cstddef>
 #include <cstdint>
 
-// --- Types de base HAL -----------------------------------------------------
+// --- Base HAL types --------------------------------------------------------
 typedef enum
 {
     HAL_OK = 0,
@@ -33,7 +33,7 @@ typedef enum
     GPIO_PIN_SET = 1
 } GPIO_PinState;
 
-// Masques de broches (sous-ensemble suffisant).
+// Pin masks (sufficient subset).
 #define GPIO_PIN_5 ((uint16_t)0x0020)
 #define GPIO_PIN_6 ((uint16_t)0x0040)
 #define GPIO_PIN_7 ((uint16_t)0x0080)
@@ -41,12 +41,12 @@ typedef enum
 #define GPIO_PIN_10 ((uint16_t)0x0400)
 #define GPIO_PIN_13 ((uint16_t)0x2000)
 
-// Modes GPIO (utilisés par TaskHeartbeat).
+// GPIO modes (used by TaskHeartbeat).
 #define GPIO_MODE_OUTPUT_PP 0x01u
 #define GPIO_NOPULL 0x00u
 #define GPIO_SPEED_FREQ_LOW 0x00u
 
-// Handles HAL (contenu sans importance pour les tests).
+// HAL handles (contents irrelevant for the tests).
 typedef struct { int instance; } UART_HandleTypeDef;
 typedef struct { int instance; } SPI_HandleTypeDef;
 typedef struct { int instance; } I2C_HandleTypeDef;
@@ -61,10 +61,10 @@ typedef struct
     uint32_t Speed;
 } GPIO_InitTypeDef;
 
-// --- Mock contrôlable ------------------------------------------------------
+// --- Controllable mock -----------------------------------------------------
 struct HalMock
 {
-    // Statuts injectables.
+    // Injectable statuses.
     HAL_StatusTypeDef uartReceiveItStatus = HAL_OK;
     HAL_StatusTypeDef uartReceiveStatus = HAL_OK;
     HAL_StatusTypeDef uartTransmitStatus = HAL_OK;
@@ -73,7 +73,7 @@ struct HalMock
     HAL_StatusTypeDef i2cTxStatus = HAL_OK;
     HAL_StatusTypeDef i2cRxStatus = HAL_OK;
 
-    // Compteurs d'appels.
+    // Call counters.
     int uartReceiveItCalls = 0;
     int uartReceiveCalls = 0;
     int uartTransmitCalls = 0;
@@ -88,15 +88,15 @@ struct HalMock
     int gpioToggleCalls = 0;
 
     // Observations.
-    uint8_t rxFillByte = 0xAB;          ///< Octet utilisé pour remplir les lectures.
-    GPIO_PinState lastGpioState = GPIO_PIN_RESET; ///< Dernier état écrit sur un GPIO.
+    uint8_t rxFillByte = 0xAB;          ///< Byte used to fill reads.
+    GPIO_PinState lastGpioState = GPIO_PIN_RESET; ///< Last state written to a GPIO.
 
     void reset() { *this = HalMock(); }
 };
 
-inline HalMock g_hal; // Instance unique (variable inline C++17).
+inline HalMock g_hal; // Single instance (C++17 inline variable).
 
-// --- Fonctions HAL simulées ------------------------------------------------
+// --- Simulated HAL functions -----------------------------------------------
 inline void HAL_Init() {}
 
 // UART

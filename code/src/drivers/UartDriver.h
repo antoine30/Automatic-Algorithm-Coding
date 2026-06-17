@@ -2,10 +2,10 @@
 
 /**
  * @file UartDriver.h
- * @brief LLR_DRV_001 — Driver UART (implémente IDriver).
+ * @brief LLR_DRV_001 — UART driver (implements IDriver).
  *
- * Réception pilotée par interruption, émission bloquante avec timeout.
- * Thread-safe via un mutex FreeRTOS. Buffer RX statique (aucune allocation).
+ * Interrupt-driven reception, blocking transmission with timeout.
+ * Thread-safe via a FreeRTOS mutex. Static RX buffer (no allocation).
  */
 
 #include <cstddef>
@@ -21,7 +21,7 @@
 class UartDriver : public IDriver
 {
 public:
-    /// @param huart Handle HAL de l'UART à piloter.
+    /// @param huart HAL handle of the UART to drive.
     explicit UartDriver(UART_HandleTypeDef *huart);
 
     DriverStatus init() override;
@@ -29,16 +29,16 @@ public:
     bool isReady() const override;
     const char *getName() const override;
 
-    /// Lecture (timeout en ms). @return OK / TIMEOUT / ERROR.
+    /// Read (timeout in ms). @return OK / TIMEOUT / ERROR.
     DriverStatus read(uint8_t *buf, size_t len, uint32_t timeout_ms);
 
-    /// Écriture bloquante. @return OK / TIMEOUT / ERROR.
+    /// Blocking write. @return OK / TIMEOUT / ERROR.
     DriverStatus write(const uint8_t *buf, size_t len);
 
 private:
     UART_HandleTypeDef *m_huart;
     bool m_initialized;
-    SemaphoreHandle_t m_mutex;            ///< Mutex de protection d'accès.
-    StaticSemaphore_t m_mutexBuffer;      ///< Stockage statique du mutex.
-    static uint8_t s_rxBuffer[256];       ///< Buffer RX statique — no malloc.
+    SemaphoreHandle_t m_mutex;            ///< Access protection mutex.
+    StaticSemaphore_t m_mutexBuffer;      ///< Static storage for the mutex.
+    static uint8_t s_rxBuffer[256];       ///< Static RX buffer — no malloc.
 };

@@ -1,9 +1,9 @@
 /**
  * @file main.cpp
- * @brief Point d'entrée applicatif (STM32F4 + FreeRTOS).
+ * @brief Application entry point (STM32F4 + FreeRTOS).
  *
- * Initialise le HAL puis délègue au Scheduler : création des tâches, envoi des
- * événements d'initialisation, et démarrage de l'ordonnanceur.
+ * Initializes the HAL then delegates to the Scheduler: task creation, sending
+ * of the initialization events, and startup of the scheduler.
  */
 
 #include "stm32f4xx_hal.h"
@@ -12,14 +12,14 @@
 
 int main(void)
 {
-    // Initialisation matérielle (horloges, périphériques) — fournie par le BSP.
+    // Hardware initialization (clocks, peripherals) — provided by the BSP.
     HAL_Init();
 
     Scheduler &scheduler = Scheduler::getInstance();
-    scheduler.init();  // Crée les tâches et poste INIT/START.
-    scheduler.start(); // Démarre l'ordonnanceur (ne retourne pas).
+    scheduler.init();  // Creates the tasks and posts INIT/START.
+    scheduler.start(); // Starts the scheduler (does not return).
 
-    // Atteint uniquement si l'ordonnanceur n'a pas pu démarrer.
+    // Reached only if the scheduler failed to start.
     for (;;)
     {
     }

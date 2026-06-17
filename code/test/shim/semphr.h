@@ -2,17 +2,17 @@
 
 /**
  * @file semphr.h (SHIM)
- * @brief Stub des sémaphores/mutex FreeRTOS — tests hôte uniquement.
+ * @brief FreeRTOS semaphore/mutex stub — host tests only.
  *
- * Les mutex sont simulés : prise/libération réussissent toujours. Suffisant
- * pour exercer la logique des drivers (sections critiques) sur PC.
+ * Mutexes are simulated: take/give always succeed. Enough to exercise the
+ * driver logic (critical sections) on a PC.
  */
 
 #include "FreeRTOS.h"
 
 typedef void *SemaphoreHandle_t;
 
-/// Stockage statique factice d'un mutex.
+/// Dummy static storage for a mutex.
 typedef struct
 {
     int dummy;
@@ -20,7 +20,7 @@ typedef struct
 
 inline SemaphoreHandle_t xSemaphoreCreateMutexStatic(StaticSemaphore_t *buffer)
 {
-    return reinterpret_cast<SemaphoreHandle_t>(buffer); // handle non nul.
+    return reinterpret_cast<SemaphoreHandle_t>(buffer); // non-null handle.
 }
 
 inline BaseType_t xSemaphoreTake(SemaphoreHandle_t, TickType_t) { return pdTRUE; }

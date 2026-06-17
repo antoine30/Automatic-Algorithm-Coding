@@ -2,11 +2,11 @@
 
 /**
  * @file TaskHeartbeat.h
- * @brief LLR_TSK_004 — Tâche heartbeat (clignotement LED d'état), event-driven.
+ * @brief LLR_TSK_004 — Heartbeat task (status LED blinking), event-driven.
  *
- * Réagit aux événements INIT/START/STOP via des handlers virtuels (aucun switch).
- * La périodicité (500 ms) est fournie par un timer logiciel FreeRTOS qui poste
- * un événement START. Autonome : ne dépend que de io_mapping (aucun driver).
+ * Reacts to INIT/START/STOP events via virtual handlers (no switch).
+ * The periodicity (500 ms) is provided by a FreeRTOS software timer that posts
+ * a START event. Self-contained: depends only on io_mapping (no driver).
  */
 
 #include <cstdint>
@@ -18,12 +18,12 @@ class TaskHeartbeat : public TaskBase
 public:
     TaskHeartbeat();
 
-    TaskStatus onInit() override;  ///< INIT  : configure la LED, l'éteint.
-    TaskStatus onStart() override; ///< START : inverse l'état de la LED.
-    TaskStatus onStop() override;  ///< STOP  : éteint la LED.
+    TaskStatus onInit() override;  ///< INIT  : configure the LED, turn it off.
+    TaskStatus onStart() override; ///< START : toggle the LED state.
+    TaskStatus onStop() override;  ///< STOP  : turn the LED off.
     const char *getName() const override;
 
-    /// @return le nombre de bascules de la LED (utile pour les tests).
+    /// @return the number of LED toggles (useful for tests).
     uint32_t toggleCount() const { return m_toggleCount; }
 
 private:

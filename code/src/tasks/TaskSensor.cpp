@@ -1,6 +1,6 @@
 /**
  * @file TaskSensor.cpp
- * @brief LLR_TSK_003 — Implémentation de la tâche capteur.
+ * @brief LLR_TSK_003 — Sensor task implementation.
  */
 
 #include "tasks/TaskSensor.h"
@@ -47,14 +47,14 @@ TaskStatus TaskSensor::onStart()
 {
     if (!m_sensor.isReady() || !m_sensor.isCalibrated())
     {
-        return TaskStatus::NOT_INITIALIZED; // START avant INIT/calibration.
+        return TaskStatus::NOT_INITIALIZED; // START before INIT/calibration.
     }
     m_running = true;
 
     DriverStatus st = m_sensor.read(s_sample, sizeof(s_sample));
     if (st == DriverStatus::TIMEOUT)
     {
-        // Timeout : on log et on continue (la tâche ne s'arrête pas).
+        // Timeout: log and continue (the task does not stop).
         return TaskStatus::OK;
     }
     if (st != DriverStatus::OK)

@@ -2,12 +2,12 @@
 
 /**
  * @file TaskBase.h
- * @brief LLR_TSK_001 — Classe de base abstraite des tâches FreeRTOS.
+ * @brief LLR_TSK_001 — Abstract base class for FreeRTOS tasks.
  *
- * Gère le cycle de vie FreeRTOS et une FILE D'ÉVÉNEMENTS. La boucle de tâche
- * bloque sur la file, reçoit un IEvent, et appelle event.execute(*this) qui
- * route vers le handler virtuel adéquat (onInit/onStart/onStop).
- * AUCUN switch/case sur le type d'événement : le dispatch est polymorphe.
+ * Manages the FreeRTOS lifecycle and an EVENT QUEUE. The task loop blocks on
+ * the queue, receives an IEvent, and calls event.execute(*this) which routes
+ * to the appropriate virtual handler (onInit/onStart/onStop).
+ * NO switch/case on the event type: dispatch is polymorphic.
  */
 
 #include <cstdint>
@@ -26,19 +26,19 @@ public:
              uint32_t queueLength = 8);
     virtual ~TaskBase();
 
-    void start(); ///< Crée la file d'événements et démarre la tâche FreeRTOS.
-    void stop();  ///< Supprime la tâche FreeRTOS et la file.
+    void start(); ///< Creates the event queue and starts the FreeRTOS task.
+    void stop();  ///< Deletes the FreeRTOS task and the queue.
 
-    /// Poste un événement (contexte tâche). @return false si la file est pleine.
+    /// Posts an event (task context). @return false if the queue is full.
     bool postEvent(const IEvent &event, TickType_t timeout = 0);
 
-    /// Poste un événement depuis une ISR.
+    /// Posts an event from an ISR.
     bool postEventFromISR(const IEvent &event, BaseType_t *higherPriorityTaskWoken);
 
 protected:
-    /// Reçoit un événement (avec @p timeout) et le dispatche par méthode
-    /// virtuelle (event->execute). @return true si un événement a été traité.
-    /// Extrait de la boucle pour être testable hors ordonnanceur.
+    /// Receives an event (with @p timeout) and dispatches it via virtual
+    /// method (event->execute). @return true if an event was processed.
+    /// Extracted from the loop so it can be tested outside the scheduler.
     bool processNextEvent(TickType_t timeout);
 
     const char *m_name;
@@ -46,9 +46,9 @@ protected:
     UBaseType_t m_priority;
     uint32_t m_queueLength;
     TaskHandle_t m_handle;
-    QueueHandle_t m_eventQueue; ///< Transporte des const IEvent* (no malloc).
+    QueueHandle_t m_eventQueue; ///< Carries const IEvent* (no malloc).
 
 private:
-    static void taskEntry(void *param); ///< Point d'entrée FreeRTOS (statique).
-    void run();                         ///< Boucle réception + dispatch.
+    static void taskEntry(void *param); ///< FreeRTOS entry point (static).
+    void run();                         ///< Receive + dispatch loop.
 };

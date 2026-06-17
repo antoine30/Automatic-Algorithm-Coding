@@ -1,13 +1,13 @@
 /**
  * @file I2cDriver.cpp
- * @brief LLR_DRV_003 — Implémentation du driver I2C.
+ * @brief LLR_DRV_003 — I2C driver implementation.
  */
 
 #include "drivers/I2cDriver.h"
 
 namespace
 {
-/// Au-delà de ce nombre d'erreurs consécutives, on tente une récupération de bus.
+/// Beyond this number of consecutive errors, a bus recovery is attempted.
 constexpr uint8_t kMaxConsecutiveErrors = 3;
 } // namespace
 
@@ -42,7 +42,7 @@ DriverStatus I2cDriver::reset()
     {
         return DriverStatus::ERROR;
     }
-    // Récupération de bus : ré-initialisation complète du périphérique I2C.
+    // Bus recovery: full re-initialization of the I2C peripheral.
     HAL_I2C_DeInit(m_hi2c);
     if (HAL_I2C_Init(m_hi2c) != HAL_OK)
     {
@@ -76,14 +76,14 @@ DriverStatus I2cDriver::mapStatus(HAL_StatusTypeDef hal)
         return DriverStatus::TIMEOUT;
     }
 
-    // Erreur : on incrémente et on tente une récupération de bus si nécessaire.
+    // Error: increment and attempt a bus recovery if necessary.
     if (m_consecutiveErrors < kMaxConsecutiveErrors)
     {
         ++m_consecutiveErrors;
     }
     if (m_consecutiveErrors >= kMaxConsecutiveErrors)
     {
-        reset(); // Récupération de bus.
+        reset(); // Bus recovery.
     }
     return DriverStatus::ERROR;
 }

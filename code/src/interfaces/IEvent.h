@@ -2,43 +2,43 @@
 
 /**
  * @file IEvent.h
- * @brief LLR_ITF_004 — Événement asynchrone livré à une tâche.
+ * @brief LLR_ITF_004 — Asynchronous event delivered to a task.
  *
- * Le routage d'un événement vers son traitement se fait UNIQUEMENT par méthode
- * virtuelle (double-dispatch / visiteur) : IEvent::execute() appelle le handler
- * correspondant de la tâche. Aucun switch/case, aucune chaîne if/else sur
- * EventId. Ajouter un événement = ajouter une classe, jamais éditer un aiguillage.
+ * Routing an event to its handling is done ONLY through a virtual method
+ * (double-dispatch / visitor): IEvent::execute() calls the corresponding
+ * handler of the task. No switch/case, no if/else chain on EventId. Adding an
+ * event = adding a class, never editing a dispatch table.
  */
 
 #include <cstdint>
 
 #include "ITask.h"
 
-/// Identifiants d'événements (debug / log uniquement — PAS pour l'aiguillage).
+/// Event identifiers (debug / log only — NOT for dispatch).
 enum class EventId : uint8_t
 {
-    INIT = 0,  ///< Initialise la tâche.
-    START = 1, ///< Démarre / fait tourner le process.
-    STOP = 2   ///< Arrête le process.
+    INIT = 0,  ///< Initializes the task.
+    START = 1, ///< Starts / runs the process.
+    STOP = 2   ///< Stops the process.
 };
 
 /**
- * @brief Événement abstrait. Le type concret choisit le handler à appeler.
+ * @brief Abstract event. The concrete type chooses the handler to call.
  */
 class IEvent
 {
 public:
     virtual ~IEvent() = default;
 
-    /// @return l'identifiant de l'événement (debug/log, jamais pour dispatch).
+    /// @return the event identifier (debug/log, never for dispatch).
     virtual EventId id() const = 0;
 
-    /// Double-dispatch : exécute le code associé en appelant le handler virtuel
-    /// adéquat de la tâche. Aucun switch/case.
+    /// Double-dispatch: runs the associated code by calling the appropriate
+    /// virtual handler of the task. No switch/case.
     virtual TaskStatus execute(ITask &task) const = 0;
 };
 
-/// Événement INIT → ITask::onInit().
+/// INIT event → ITask::onInit().
 class InitEvent final : public IEvent
 {
 public:
@@ -46,7 +46,7 @@ public:
     TaskStatus execute(ITask &task) const override { return task.onInit(); }
 };
 
-/// Événement START → ITask::onStart().
+/// START event → ITask::onStart().
 class StartEvent final : public IEvent
 {
 public:
@@ -54,7 +54,7 @@ public:
     TaskStatus execute(ITask &task) const override { return task.onStart(); }
 };
 
-/// Événement STOP → ITask::onStop().
+/// STOP event → ITask::onStop().
 class StopEvent final : public IEvent
 {
 public:
@@ -63,10 +63,10 @@ public:
 };
 
 /**
- * @brief Instances singleton partagées (événements sans état).
+ * @brief Shared singleton instances (stateless events).
  *
- * Permet de poster un const IEvent* dans une file FreeRTOS sans allocation
- * dynamique.
+ * Allows posting a const IEvent* into a FreeRTOS queue without dynamic
+ * allocation.
  */
 namespace events
 {

@@ -2,12 +2,12 @@
 
 /**
  * @file IDriver.h
- * @brief LLR_ITF_002 — Interface abstraite commune à tous les drivers.
+ * @brief LLR_ITF_002 — Abstract interface common to all drivers.
  */
 
 #include <cstdint>
 
-/// Code de retour des opérations driver.
+/// Return code for driver operations.
 enum class DriverStatus : uint8_t
 {
     OK = 0,
@@ -18,15 +18,15 @@ enum class DriverStatus : uint8_t
 };
 
 /**
- * @brief Interface 100% abstraite que tout driver périphérique doit implémenter.
+ * @brief Fully abstract interface that every peripheral driver must implement.
  */
 class IDriver
 {
 public:
     virtual ~IDriver() = default;
 
-    virtual DriverStatus init() = 0;       ///< Initialise le périphérique.
-    virtual DriverStatus reset() = 0;      ///< Remet dans l'état initial.
-    virtual bool isReady() const = 0;      ///< @return true si prêt.
-    virtual const char *getName() const = 0; ///< @return le nom du driver.
+    virtual DriverStatus init() = 0;       ///< Initializes the peripheral.
+    virtual DriverStatus reset() = 0;      ///< Resets to the initial state.
+    virtual bool isReady() const = 0;      ///< @return true if ready.
+    virtual const char *getName() const = 0; ///< @return the driver name.
 };

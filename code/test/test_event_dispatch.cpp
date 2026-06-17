@@ -1,12 +1,12 @@
 /**
  * @file test_event_dispatch.cpp
- * @brief Tests unitaires du cœur event-driven (indépendant de FreeRTOS/HAL).
+ * @brief Unit tests for the event-driven core (independent of FreeRTOS/HAL).
  *
- * Vérifie l'exigence centrale : un événement exécute le code associé via une
- * MÉTHODE VIRTUELLE (double-dispatch), sans aucun switch/case. On valide que
- * chaque événement appelle bien le handler correspondant et propage le statut.
+ * Verifies the central requirement: an event runs the associated code via a
+ * VIRTUAL METHOD (double-dispatch), without any switch/case. We validate that
+ * each event calls the corresponding handler and propagates the status.
  *
- * Build : voir Makefile (cible `make`).
+ * Build: see Makefile (`make` target).
  */
 
 #include "interfaces/IEvent.h"
@@ -28,7 +28,7 @@ static int g_checks = 0;
         }                                                                      \
     } while (0)
 
-/// Tâche factice : compte les appels de chaque handler et renvoie un statut piloté.
+/// Dummy task: counts calls to each handler and returns a controlled status.
 class MockTask : public ITask
 {
 public:
@@ -93,8 +93,8 @@ static void test_status_is_propagated()
 
 static void test_polymorphic_dispatch_via_base_pointer()
 {
-    // Dispatch via IEvent& : c'est le type dynamique qui choisit le handler,
-    // sans aucun switch/case côté appelant.
+    // Dispatch via IEvent&: the dynamic type chooses the handler,
+    // without any switch/case on the caller side.
     MockTask task;
     const IEvent *sequence[] = {&events::kInit, &events::kStart, &events::kStop};
     for (const IEvent *ev : sequence)

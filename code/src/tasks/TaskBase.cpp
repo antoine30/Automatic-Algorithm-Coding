@@ -1,9 +1,9 @@
 /**
  * @file TaskBase.cpp
- * @brief LLR_TSK_001 — Implémentation de la boucle d'événements.
+ * @brief LLR_TSK_001 — Event loop implementation.
  *
- * Le dispatch sur le type d'événement est entièrement polymorphe
- * (event->execute(*this)) : ce fichier ne contient AUCUN switch/case.
+ * Dispatch on the event type is fully polymorphic
+ * (event->execute(*this)): this file contains NO switch/case.
  */
 
 #include "tasks/TaskBase.h"
@@ -24,14 +24,14 @@ void TaskBase::start()
 {
     if (m_handle != nullptr || m_eventQueue != nullptr)
     {
-        return; // Déjà démarrée (idempotent).
+        return; // Already started (idempotent).
     }
 
-    // La file transporte des pointeurs vers des événements singleton.
+    // The queue carries pointers to singleton events.
     m_eventQueue = xQueueCreate(m_queueLength, sizeof(const IEvent *));
     if (m_eventQueue == nullptr)
     {
-        return; // Allocation impossible : tâche non démarrée.
+        return; // Allocation failed: task not started.
     }
 
     if (xTaskCreate(&TaskBase::taskEntry, m_name, m_stackSize, this, m_priority,
@@ -89,12 +89,12 @@ bool TaskBase::processNextEvent(TickType_t timeout)
 
     if (xQueueReceive(m_eventQueue, &event, timeout) == pdTRUE && event != nullptr)
     {
-        // Dispatch polymorphe : appelle onInit/onStart/onStop. NO switch.
+        // Polymorphic dispatch: calls onInit/onStart/onStop. NO switch.
         TaskStatus status = event->execute(*this);
         if (status != TaskStatus::OK)
         {
-            // Journalisation : nom de tâche + code d'erreur.
-            // (brancher ici le canal de log du projet)
+            // Logging: task name + error code.
+            // (hook the project's log channel here)
             (void)status;
         }
         return true;
@@ -104,7 +104,7 @@ bool TaskBase::processNextEvent(TickType_t timeout)
 
 void TaskBase::run()
 {
-    // Boucle infinie : bloque sur la file et dispatche chaque événement reçu.
+    // Infinite loop: block on the queue and dispatch each received event.
     for (;;)
     {
         processNextEvent(portMAX_DELAY);
