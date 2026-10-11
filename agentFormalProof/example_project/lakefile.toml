@@ -1,0 +1,9 @@
+name = "formalproof"
+defaultTargets = ["Solution"]
+
+# The agent writes Solution.lean at the project root; the frozen spec Check.lean
+# (also at root) imports it. srcDir = "." makes `lake build Solution` compile
+# ./Solution.lean, and `lake env lean Check.lean` type-checks the spec against it.
+[[lean_lib]]
+name = "Solution"
+srcDir = "."

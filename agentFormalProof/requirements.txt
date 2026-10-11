@@ -1,0 +1,5 @@
+# Python dependencies for the Lean MCP agent.
+# IMPORTANT: the server uses the MCP v1 API (mcp.server.fastmcp.FastMCP).
+# mcp 2.x renamed FastMCP -> MCPServer and breaks this code, so pin < 2.
+anthropic==1.13.0
+mcp>=1,<2

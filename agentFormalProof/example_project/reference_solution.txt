@@ -1,0 +1,16 @@
+Reference answer key (NOT named *.lean so lake ignores it). The agent is meant
+to discover this on its own; kept here only so a human can verify the task is
+solvable.
+
+namespace Solution
+
+def double (n : Nat) : Nat := n + n
+
+theorem double_eq (n : Nat) : double n = n + n := rfl
+
+theorem add_comm' (a b : Nat) : a + b = b + a := Nat.add_comm a b
+
+theorem reverse_reverse (l : List Nat) : l.reverse.reverse = l :=
+  List.reverse_reverse l
+
+end Solution

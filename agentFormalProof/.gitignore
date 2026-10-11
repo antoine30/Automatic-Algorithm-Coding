@@ -1,0 +1,8 @@
+# Python virtualenv (machine-specific, do not publish)
+.venv/
+__pycache__/
+*.pyc
+
+# Lean build artifacts / scratch
+example_project/.lake/
+_Scratch.lean
