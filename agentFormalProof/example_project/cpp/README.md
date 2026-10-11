@@ -20,6 +20,27 @@ Executable C++ counterpart of the formally-verified Lean definitions in
 | `reverse_reverse` | `reverse(reverse(l)) == l` |
 | `sumList_append` | `sumList(l ++ m) == sumList(l) + sumList(m)` |
 
+## C++ generated from Lean (oracle)
+
+`lean_generated.hpp` is **auto-generated from the verified Lean `Solution`** by
+[`../gen/Gen.lean`](../gen/Gen.lean): Lean itself computes the expected outputs of
+`double`, `sumList`, `reverse` and `sumList(l ++ m)` on sample inputs and emits
+them as C++ golden vectors. The test then asserts the C++ implementation
+reproduces exactly those Lean-computed values — so Lean is the single source of
+truth for both the proof *and* the reference data.
+
+```sh
+make generate   # re-emit lean_generated.hpp FROM Lean (needs the toolchain)
+make            # build + run the checks (uses the committed lean_generated.hpp)
+```
+
+Pipeline:
+```
+Solution.lean ──(proved vs Check.lean)──► gen/Gen.lean ──emits──► cpp/lean_generated.hpp
+                                                                        │
+                                            test_solution.cpp ──asserts C++ == Lean values
+```
+
 ## Build & run
 ```sh
 make        # g++ -std=c++17, builds and runs the checks

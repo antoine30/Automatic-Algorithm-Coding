@@ -14,6 +14,7 @@
  */
 
 #include "solution.hpp"
+#include "lean_generated.hpp" // golden vectors computed by Lean (gen/Gen.lean)
 
 #include <cstdint>
 #include <cstdio>
@@ -68,6 +69,26 @@ int main()
 
         // sumList_append : sumList(l ++ m) == sumList(l) + sumList(m)
         CHECK(sumList(append(l, m)) == sumList(l) + sumList(m));
+    }
+
+    // --- Validation against Lean-generated golden vectors (the oracle) -------
+    // These expected values were computed BY LEAN and emitted into
+    // lean_generated.hpp; the C++ implementation must reproduce them exactly.
+    for (const auto &c : lean_generated::doubleCases)
+    {
+        CHECK(doubleNat(c.n) == c.expected);
+    }
+    for (const auto &c : lean_generated::sumCases)
+    {
+        CHECK(sumList(c.l) == c.expected);
+    }
+    for (const auto &c : lean_generated::reverseCases)
+    {
+        CHECK(reverse(c.l) == c.expected);
+    }
+    for (const auto &c : lean_generated::appendSumCases)
+    {
+        CHECK(sumList(append(c.l, c.m)) == c.expected);
     }
 
     std::printf("\n%d checks, %d failure(s)\n", g_checks, g_failures);
