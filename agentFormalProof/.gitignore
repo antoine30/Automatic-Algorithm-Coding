@@ -6,3 +6,6 @@ __pycache__/
 # Lean build artifacts / scratch
 example_project/.lake/
 _Scratch.lean
+
+# C++ test binary
+example_project/cpp/run_tests
