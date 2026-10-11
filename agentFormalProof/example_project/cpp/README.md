@@ -20,30 +20,31 @@ Executable C++ counterpart of the formally-verified Lean definitions in
 | `reverse_reverse` | `reverse(reverse(l)) == l` |
 | `sumList_append` | `sumList(l ++ m) == sumList(l) + sumList(m)` |
 
-## C++ generated from Lean (oracle)
+## C++ generated from Lean
 
-`lean_generated.hpp` is **auto-generated from the verified Lean `Solution`** by
-[`../gen/Gen.lean`](../gen/Gen.lean): Lean itself computes the expected outputs of
-`double`, `sumList`, `reverse` and `sumList(l ++ m)` on sample inputs and emits
-them as C++ golden vectors. The test then asserts the C++ implementation
-reproduces exactly those Lean-computed values — so Lean is the single source of
-truth for both the proof *and* the reference data.
+Both headers are **auto-generated from the verified Lean `Solution`** by
+[`../gen/Gen.lean`](../gen/Gen.lean) — nothing in them is hand-written:
+
+- `solution.hpp` — the C++ **implementation** (bodies mirror each Lean `def`).
+- `lean_generated.hpp` — C++ **golden vectors**: Lean itself computes the expected
+  outputs of `double`, `sumList`, `reverse`, `sumList(l ++ m)` (Lean = oracle).
+
+The test then asserts the implementation reproduces exactly those Lean-computed
+values, so Lean is the single source of truth for the proof *and* the code *and*
+the reference data. If the implementation ever drifts from `Solution.lean`, the
+oracle vectors no longer match and the test fails.
 
 ```sh
-make generate   # re-emit lean_generated.hpp FROM Lean (needs the toolchain)
-make            # build + run the checks (uses the committed lean_generated.hpp)
+make generate   # re-emit solution.hpp + lean_generated.hpp FROM Lean (needs toolchain)
+make            # build + run the checks (uses the committed generated headers)
 ```
 
 Pipeline:
 ```
-Solution.lean ──(proved vs Check.lean)──► gen/Gen.lean ──emits──► cpp/lean_generated.hpp
-                                                                        │
-                                            test_solution.cpp ──asserts C++ == Lean values
-```
-
-## Build & run
-```sh
-make        # g++ -std=c++17, builds and runs the checks
+Solution.lean ─(proved vs Check.lean)─► gen/Gen.lean ─emits─► cpp/solution.hpp      (implementation)
+                                                     └─emits─► cpp/lean_generated.hpp (oracle vectors)
+                                                                      │
+                                            test_solution.cpp ─asserts─ C++ == Lean values
 ```
 
 ## Status vs. the proof
