@@ -1,0 +1,35 @@
+Spur removal by Bessel relations and phase derotation: overview
+
+1. Model. A complex carrier (baseband, assumed to be a pure sinusoid with no useful modulation) is phase-modulated by a parasitic
+   spur: r[k] = C * exp(j * beta * sin(2 pi D k + phi)), with D = f_spur / f_sampling, beta the modulation index and phi the phase of
+   the spur. The Jacobi-Anger expansion gives r[k] = C * sum_n J_n(beta) * exp(j n (2 pi D k + phi)):
+   the carrier loses power (J_0 < 1) and lines of amplitude J_n(beta) appear at the frequencies n * f_spur.
+
+2. Algorithm.
+   a) Correlation: c_n = (1/N) * sum_k r[k] * exp(-j n 2 pi D k), for n = 0, 1, 2. We have c_n = C * J_n(beta) * exp(j n phi).
+   b) Index: beta = 2 |c_1| / (|c_0| + |c_2|), from the recurrence J_0 + J_2 = (2/beta) * J_1 (valid for 0 < beta < 2.405).
+   c) Phase: exp(j phi) = c_1 * conj(c_0) / |c_1 * conj(c_0)|, since J_0 * J_1 > 0 on this interval.
+   d) Derotation: r'[k] = r[k] * exp(-j * beta * sin(2 pi D k + phi)). The result is C: the spur and its harmonics disappear
+      and the carrier recovers its full power.
+
+3. Assumptions. Pure sinusoidal carrier over the block; spur frequency known (phase increment delta); coherent integration
+   (N * D an integer, otherwise the estimate is biased); 0 < beta < 2.405; noise small compared with the spur.
+
+4. Fixed-point implementation. 16-bit Q15 samples; phases in Q32 turns; sine from a 257-value table with linear interpolation;
+   coefficients c_n in Q30; beta and the derotation angle in Q16; unit phasor in Q15; all intermediate computations fit in 64 bits.
+
+5. Module breakdown (one requirements file per module, to be passed to the agent with --name):
+   1 cossin (oscillator) -> 2 correlate (correlation) -> 3 estimate (index and phase) -> 4 derot_block (block derotation).
+   Chaining 2 -> 3 -> 4 on a single block is the final integration.
+
+6. Performance measured on the fixed-point Python prototype (spur_pm_prototype.py), N = 4096, SNR 70 dB, 8 noise draws per case:
+   beta = 0.02: spur of -40.0 dBc brought down to -94 dBc in the worst case; beta = 0.3: from -16.4 to -92; beta = 1.0: from -4.8 to -82;
+   beta = 2.0: from +8.2 to -78. Near the validity limit (beta = 2.3), the worst case degrades to -74 dBc.
+   Beta estimation error below 1e-4, phase exact to within 1e-3.
+   Validation goal for the complete chain: residual spur <= -75 dBc for 0.02 <= beta <= 2, SNR >= 70 dB.
+   The residual level is limited by the estimation noise at 70 dB SNR (about -84 dBc); moving beta and the derotation angle from Q13
+   to Q16 gained 8 to 18 dB (in Q13: -74 dBc in the worst case for beta = 2).
+
+7. What Lean proves, and what it does not. Lean proves the properties of each module (bounds, symmetries, absence of overflow).
+   The accuracy of the sine table and the effectiveness of the algorithm (residual spur level) are validated by simulation and by
+   comparison with an independent floating-point reference, not by proof.

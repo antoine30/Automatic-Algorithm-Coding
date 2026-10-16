@@ -1,0 +1,86 @@
+{
+  "name": "spur_pm",
+  "title": "Suppression de raies parasites de modulation de phase (relations de Bessel et dérotation)",
+  "lean_import": "",
+  "overview": "req_pm_0_vue_densemble.txt",
+  "modules": [
+    {
+      "name": "estimate",
+      "req": "req_pm_3_estimate.txt",
+      "role": "Estimation de l'indice de modulation (récurrence de Bessel) et de la phase de la raie",
+      "oracle": "spur_pm_prototype:oracle_estimate",
+      "model": "claude-opus-5-5",
+      "role_en": "Estimation of the modulation index (Bessel recurrence) and of the spur phase"
+    },
+    {
+      "name": "cossin",
+      "req": "req_pm_1_cossin.txt",
+      "role": "Oscillateur numérique : sinus et cosinus par table et interpolation",
+      "oracle": "spur_pm_prototype:oracle_cossin",
+      "model": "claude-opus-5-5",
+      "role_en": "Digital oscillator: sine and cosine by table and interpolation"
+    },
+    {
+      "name": "correlate",
+      "req": "req_pm_2_correlate.txt",
+      "role": "Corrélation du bloc avec la raie et ses harmoniques (coefficients c0, c1, c2)",
+      "oracle": "spur_pm_prototype:oracle_correlate",
+      "role_en": "Correlation of the block with the spur and its harmonics (coefficients c0, c1, c2)"
+    },
+    {
+      "name": "derot_block",
+      "req": "req_pm_4_derot_block.txt",
+      "role": "Dérotation de la phase : multiplication par exp(-j beta sin(...)) sur un bloc",
+      "oracle": "spur_pm_prototype:oracle_derot_block",
+      "role_en": "Phase derotation: multiplication by exp(-j beta sin(...)) over a block"
+    }
+  ],
+  "integration": {
+    "name": "spur_block",
+    "req": "req_pm_5_integration.txt",
+    "role": "Fonction système : corrélation, estimation, dérotation sur un bloc",
+    "oracle": "spur_pm_prototype:oracle_spur_block",
+    "role_en": "System function: correlation, estimation and derotation on a block"
+  },
+  "system_tests": {
+    "n": 4096,
+    "cycles": 37,
+    "amplitude": 24000,
+    "criterion_dbc": -75,
+    "criterion_text": "raie résiduelle inférieure ou égale à -75 dBc, pour 0,02 <= beta <= 2 et un SNR d'au moins 70 dB",
+    "scenarios": [
+      {
+        "beta": 0.02,
+        "phi": 0.4,
+        "snr_db": 70
+      },
+      {
+        "beta": 0.3,
+        "phi": 2.0,
+        "snr_db": 70
+      },
+      {
+        "beta": 1.0,
+        "phi": -1.1,
+        "snr_db": 70
+      },
+      {
+        "beta": 2.0,
+        "phi": 0.9,
+        "snr_db": 70
+      }
+    ],
+    "criterion_text_en": "residual spur less than or equal to -75 dBc, for 0.02 <= beta <= 2 and an SNR of at least 70 dB"
+  },
+  "references": "references_lean",
+  "title_en": "Removal of phase-modulation spurs (Bessel relations and derotation)",
+  "overview_en": "req_pm_0_overview_en.txt",
+  "report": {
+    "languages": [
+      "fr",
+      "en"
+    ],
+    "author": "Antoine DAMON",
+    "email": "Antoine.Damon@laposte.net"
+  }
+}

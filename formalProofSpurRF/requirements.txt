@@ -1,0 +1,9 @@
+# Python dependencies of the agent, the report generator and the figures
+anthropic
+requests
+numpy
+matplotlib
+reportlab
+
+# Optional: a C compiler without administrator rights (the agent detects it automatically)
+# ziglang
